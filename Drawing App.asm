@@ -3,20 +3,20 @@ TITLE Lukas Lapinskas/Drawing app
 INCLUDE Irvine32.inc
 
 ;-------------------------------------------------
-;					CONTROLS
+;			CONTROLS
 ;
 ;______Key___________________Description__________
-;	Arrow keys	_|_		Move the cursor
-;		E		_|_		Eraser (black color)
-;		F		_|_		Toggle freeroam
-;	   1-9		_|_		Select from color palette
-;		0		_|_		Wacky color
-;		C		_|_		Clear drawing
-;		[		_|_		Move cursor northwest
-;		]		_|_		Move cursor northeast
-;		;		_|_		Move cursor southwest
-;		'		_|_		Move cursor southeast
-;	   ESC		_|_		Exit program
+;	Arrow keys	_|_	Move the cursor
+;	E		_|_	Eraser (black color)
+;	F		_|_	Toggle freeroam
+;	1-9		_|_	Select from color palette
+;	0		_|_	Wacky color
+;	C		_|_	Clear drawing
+;	[		_|_	Move cursor northwest
+;	]		_|_	Move cursor northeast
+;	;		_|_	Move cursor southwest
+;	'		_|_	Move cursor southeast
+;	ESC		_|_	Exit program
 ;-------------------------------------------------
 
 
@@ -24,7 +24,7 @@ INCLUDE Irvine32.inc
 
 ;holds the current column and row position o f the cursor
 currentColumn	BYTE 0
-currentRow		BYTE 0
+currentRow	BYTE 0
 
 
 
@@ -47,28 +47,28 @@ SetUpMenu PROC
 	push esi
 	push edi
 
-	xor eax, eax					;set EAX register to 0
+	xor eax, eax			;set EAX register to 0
 
-	mov esi, OFFSET colorArray		;prepare the two ...
+	mov esi, OFFSET colorArray	;prepare the two ...
 	mov edi, OFFSET colorNumArray	;... arrays for looping
 	mov ecx, LENGTHOF colorArray	;loop the length of the arrays
 again:							
-	push [esi]						;color value
-	push [edi]						;color number (1-9)
-	call AddColorToPalette			;add color to palette
-	add esi, 4						;move to next element
-	add edi, 4						;move to next element
+	push [esi]			;color value
+	push [edi]			;color number (1-9)
+	call AddColorToPalette		;add color to palette
+	add esi, 4			;move to next element
+	add edi, 4			;move to next element
 loop again
 
-	call SetupFreeroam				;set up freeroam status area
+	call SetupFreeroam		;set up freeroam status area
 
 	mov al, currentColumn
 	mov al, 4
-	mov currentColumn, al			;set currentColumn to 4
+	mov currentColumn, al		;set currentColumn to 4
 
 	mov al, currentRow
 	mov al, 3
-	mov currentRow, al				;set currentRow to 2
+	mov currentRow, al		;set currentRow to 2
 
 	pop edi
 	pop esi
@@ -81,7 +81,7 @@ SetUpMenu ENDP
 
 .data
 wordON BYTE "ON ", 0	;holds the string "ON " (the space after on is needed so that
-						;it can erase the last 'F' in "OFF" when it changes.)
+			;it can erase the last 'F' in "OFF" when it changes.)
 wordOFF BYTE "OFF", 0	;holds the string "OFF"
 
 wordFREEROAM	BYTE "(F) FREEROAM: ", 0	;holds the string "(F) FREEROAM: "
@@ -123,14 +123,14 @@ UpdateFreeroamStatus PROC
 
 	xor eax, eax			;make eax zero
 
-	mov dl, 116				;column 116
-	mov dh, 0				;row 0
-	call Gotoxy				;move cursor to upper right corner of console window
+	mov dl, 116			;column 116
+	mov dh, 0			;row 0
+	call Gotoxy			;move cursor to upper right corner of console window
 
 	mov al, freeroamON
 	cmp al, 1
 	je changeToON			;if freeroamON variable has value of 1, jump to changeToON label
-	push 12					;push color 12 (light green) to be used as a parameter value by SetCharColor
+	push 12				;push color 12 (light green) to be used as a parameter value by SetCharColor
 	call SetCharColor		;change text color to green
 	mov edx, OFFSET wordOFF
 	call WriteString		;write "OFF" in upper right corner
@@ -140,7 +140,7 @@ UpdateFreeroamStatus PROC
 	jmp done
 
 changeToON:	
-	push 10					;push color 10 (light red)
+	push 10				;push color 10 (light red)
 	call SetCharColor		;set character color to red
 	mov edx, OFFSET wordON
 	call WriteString		;write "ON " in upper right corner
@@ -161,7 +161,7 @@ UpdateFreeroamStatus ENDP
 AddColorToPalette PROC
 ; Adds one color to to the palette of 9 colors.
 ; Receives: [ebp + 8] - a number 0-15 that represents a color
-;			[ebp + 12] - a character
+;	    [ebp + 12] - a character
 ; Returns: nothing
 ;------------------------------------------------------------
 	push ebp
@@ -183,7 +183,7 @@ AddColorToPalette PROC
 
 	pop eax
 	pop ebp
-	ret 8				;remove 2 parameters values from the stack and return
+	ret 8			;remove 2 parameters values from the stack and return
 AddColorToPalette ENDP
 
 
@@ -206,11 +206,11 @@ change:
 	call RandomRange	;run function to generate value from said range
 
 	mov ah, 00h			
-	mov ecx, 16			;loop 16 times ( 00h, 10, 20, ... E0, F0. These are all black colors)
+	mov ecx, 16		;loop 16 times ( 00h, 10, 20, ... E0, F0. These are all black colors)
 checkIfBlack:
-	cmp al, ah			;compare generated color to a black color
-	je change			;if black color is found, jump to generate new color
-	add ah, 10h			;increment to test the next black color
+	cmp al, ah		;compare generated color to a black color
+	je change		;if black color is found, jump to generate new color
+	add ah, 10h		;increment to test the next black color
 loop checkIfBlack
 
 	mov currentColor, eax	;move the new color into currentColor variable
@@ -244,13 +244,13 @@ SetCharColor PROC
 	pop edx
 	pop eax
 	pop ebp
-	ret 4				;remove one parameter from the stack and return
+	ret 4			;remove one parameter from the stack and return
 SetCharColor ENDP
 
 
 
 .data
-currentColor DWORD 0			;holds currently selected color
+currentColor DWORD 0	;holds currently selected color
 .code
 ;------------------------------------------------------------
 SetColor PROC  ;SetSquareColor?
@@ -261,13 +261,13 @@ SetColor PROC  ;SetSquareColor?
 	push ebp
 	mov ebp, esp
 	push eax
-	push edx					;backed up EDX for multiplication (EAX*[ebp+8]=EDX:EAX)
+	push edx			;backed up EDX for multiplication (EAX*[ebp+8]=EDX:EAX)
 
 	mov eax, 16
 	mul DWORD PTR [ebp + 8]		;set background color (color of the square)
-	add eax, black				;set foreground color to black (doens't affect the color of the square
-								;because the square is just two (space) characters)
-	call SetTextColor			;apply color changes
+	add eax, black			;set foreground color to black (doens't affect the color of the square
+					;because the square is just two (space) characters)
+	call SetTextColor		;apply color changes
 
 	mov eax, [ebp + 8]
 	mov currentColor, eax		;update currentColor variable with the new change
@@ -275,7 +275,7 @@ SetColor PROC  ;SetSquareColor?
 	pop edx
 	pop eax
 	pop ebp
-	ret 4						;remove one parameter from the stack and return
+	ret 4				;remove one parameter from the stack and return
 SetColor ENDP
 
 
@@ -311,7 +311,7 @@ turnFreeroamOFF:
 done:
 	pop eax
 	pop ebp
-	ret 4					;remove one parameter and return
+	ret 4				;remove one parameter and return
 AlterFreeroam ENDP
 
 
@@ -392,13 +392,13 @@ randomColor:
 	done:
 	mov dl, freeroamON
 	cmp dl, 0
-	jz skip						;if freeroamON has a value of 0 then jump to skip label ...
+	jz skip				;if freeroamON has a value of 0 then jump to skip label ...
 	push -2
 	push 0
-	call MoveCursor				;... else, move the cursor back 2 columns
+	call MoveCursor			;... else, move the cursor back 2 columns
 skip:
 	push 0
-	call AlterFreeroam			;set freeroam to OFF
+	call AlterFreeroam		;set freeroam to OFF
 	call UpdateFreeroamStatus	;update freeroam status at top right corner of console
 
 	pop edx
@@ -436,17 +436,17 @@ ToolPicker PROC
 	mov dx, [ebp + 8]	;move hexadecimal value of key pressed into DX register
 
 	cmp dx, 0045h
-	je eraser			;if letter E, jump to eraser label
+	je eraser		;if letter E, jump to eraser label
 	cmp dx, 0046h
-	je freeroam			;if letter F, jump to freeroam label
+	je freeroam		;if letter F, jump to freeroam label
 
 eraser:	
 	push black			
 	call SetColor		;set square color to 0 (black)
 
 	mov dl, freeroamON
-	cmp dl, 0			;if freeroamON is 0 (OFF) ...
-	je dontMove			;... then don't move mouse back 2 columns ???????????????
+	cmp dl, 0		;if freeroamON is 0 (OFF) ...
+	je dontMove		;... then don't move mouse back 2 columns ???????????????
 	push -2
 	push 0
 	call MoveCursor
@@ -463,21 +463,21 @@ freeroam:
 	mov freeroamON, dl
 
 	mov dl, freeroamON
-	cmp dl, 1					;if freeroam is ON
+	cmp dl, 1			;if freeroam is ON
 	je doNotMove					
 	push -2
 	push 0
 	call MoveCursor
 doNotMove:
 	cmp dl, 0
-	je skip2					;if freeroam is OFF, jump to skip2
+	je skip2			;if freeroam is OFF, jump to skip2
 	push 2
 	push 0
 	call MoveCursor	
 skip2:
 	push currentColor
-	Call SetColor				;set square color to currentColor (so that when freeroam is turned OFF from ON,
-								;the color the user had selected is back).
+	Call SetColor			;set square color to currentColor (so that when freeroam is turned OFF from ON,
+					;the color the user had selected is back).
 
 	done:
 	call UpdateFreeroamStatus	;Update the OFF/ON word in top right corner of console
@@ -494,7 +494,7 @@ MoveCursor PROC
 ; Column - positive value moves right, negative value moves left
 ; Row - positive value moves up, negative value moves down
 ; Receives: [ebp + 8] - amount to move down or up (row)
-;			[ebp + 12] - amount to move left or right (column)
+;	    [ebp + 12] - amount to move left or right (column)
 ; Returns: nothing
 ;------------------------------------------------------------
 	push ebp
@@ -502,24 +502,24 @@ MoveCursor PROC
 	push eax
 	push edx
 
-	xor eax, eax			;set EAX to 0
+	xor eax, eax		;set EAX to 0
 	
 	mov al, currentColumn	
-	add eax, [ebp + 12]		;add number of columns in parameter 
+	add eax, [ebp + 12]	;add number of columns in parameter 
 	mov currentColumn, al	;update new cursor column location
 
 	mov al, currentRow
-	add eax, [ebp + 8]		;add number of rows in parameter 
-	mov currentRow, al		;update new cursor row location
+	add eax, [ebp + 8]	;add number of rows in parameter 
+	mov currentRow, al	;update new cursor row location
 
 	mov dl, currentColumn
 	mov dh, currentRow
-	call Gotoxy				;move cursor to the new column and row location
+	call Gotoxy		;move cursor to the new column and row location
 
 	pop edx
 	pop eax
 	pop ebp
-	ret 8					;remove 2 parameters
+	ret 8			;remove 2 parameters
 MoveCursor ENDP
 
 
@@ -532,7 +532,7 @@ DrawSquare PROC
 ;------------------------------------------------------------
 	push eax
 
-	mov al, ' '		;set AL register to the (space) character
+	mov al, ' '	;set AL register to the (space) character
 	call WriteChar	;print the character two times
 	call WriteChar
 
@@ -549,94 +549,94 @@ DrawSquare ENDP
 main PROC 
 
 start:
-	call SetupMenu				;set up the menu	
+	call SetupMenu			;set up the menu	
 
-	push 1						;freeroam is ON initially
+	push 1				;freeroam is ON initially
 	call AlterFreeroam
 
 	Call UpdateFreeroamStatus	;update freeroam's current status
 
 	push 15
-	call SetColor				;set initial color to 15 (white)
+	call SetColor			;set initial color to 15 (white)
 
-	call Randomize				;random seed (for random color generation)
+	call Randomize			;random seed (for random color generation)
 
 LookForKey:
-	mov  eax,50					;sleep, to allow OS to time slice
-    call Delay					;(otherwise, some key presses are lost)
-	call ReadKey				;read key pressed by user and store in DX
-	jz LookForKey				
+	mov  eax,50			;sleep, to allow OS to time slice
+    call Delay				;(otherwise, some key presses are lost)
+	call ReadKey			;read key pressed by user and store in DX
+	jz LookForKey			
 
 	mov al, currentColumn		;store cursor's current column location
-	mov ah, currentRow			;store cursor's current row location
+	mov ah, currentRow		;store cursor's current row location
 
-	cmp dx, 0025h				;left arrow key
+	cmp dx, 0025h			;left arrow key
 	je moveLeft
-	cmp dx, 0026h				;up arrow key
+	cmp dx, 0026h			;up arrow key
 	je moveUp
-	cmp dx, 0027h				;right arrow key
+	cmp dx, 0027h			;right arrow key
 	je moveRight
-	cmp dx, 0028h				;down arrow key
+	cmp dx, 0028h			;down arrow key
 	je moveDown
 
-	cmp dx, 0043h				; C key
+	cmp dx, 0043h			; C key
 	je clear
 
-	cmp dx, 00DDh				; [ key
+	cmp dx, 00DDh			; [ key
 	je moveRightUp
-	cmp dx, 00DBh				; ] key
+	cmp dx, 00DBh			; ] key
 	je moveLeftUp
-	cmp dx, 00DEh				; ' key
+	cmp dx, 00DEh			; ' key
 	je moveRightDown
-	cmp dx, 00BAh				; ; key
+	cmp dx, 00BAh			; ; key
 	je moveLeftDown
 
-	cmp dx, 001Bh				;ESC key
+	cmp dx, 001Bh			;ESC key
 	je exitProgram
 
 	cmp dx, 0039h		
-	ja skip						;if key above 0039h, jump to skip label
-	cmp dx, 0030h				;if key below 0030h, jump to skip label
+	ja skip				;if key above 0039h, jump to skip label
+	cmp dx, 0030h			;if key below 0030h, jump to skip label
 	jb skip
-	push edx					;push key pressed onto the stack (EDX contains DX)
-	call ColorPicker			;set color based on key presses
+	push edx			;push key pressed onto the stack (EDX contains DX)
+	call ColorPicker		;set color based on key presses
 	jmp draw					
 
 	skip:
 	cmp dx, 0045h
-	jb LookForKey				;if key below 0045h = (any other key not checked in this function),
-								;jump to LookForKey = (don't draw or do anything)
+	jb LookForKey			;if key below 0045h = (any other key not checked in this function),
+					;jump to LookForKey = (don't draw or do anything)
 	cmp dx, 0046h
-	ja LookForKey				;if key below 0045h = (any other key not checked in this function),
-								;jump to LookForKey = (don't draw or do anything)
-	push edx					;push key pressed onto the stack (EDX contains DX, and key is stored in DX)
-	call ToolPicker				;pick tool based on key pressed = (based on key pushed on stack)
+	ja LookForKey			;if key below 0045h = (any other key not checked in this function),
+					;jump to LookForKey = (don't draw or do anything)
+	push edx			;push key pressed onto the stack (EDX contains DX, and key is stored in DX)
+	call ToolPicker			;pick tool based on key pressed = (based on key pushed on stack)
 	jmp draw
 
 moveLeft:			
 	cmp al, 2					
-	jbe nodraw					;if cursor is at column 2 or below, don't move cursor and don't draw
+	jbe nodraw			;if cursor is at column 2 or below, don't move cursor and don't draw
 	push -2
 	push 0
 	call MoveCursor
 	jmp draw
 moveUp:
 	cmp ah, 2
-	jbe nodraw					;if cursor is at row 2 or below, don't move cursor and don't draw
+	jbe nodraw			;if cursor is at row 2 or below, don't move cursor and don't draw
 	push 0
 	push -1
 	call MoveCursor
 	jmp draw
 moveRight:
 	cmp al, 116
-	jae nodraw					;if cursor is at column 116 or above, don't move cursor and don't draw
+	jae nodraw			;if cursor is at column 116 or above, don't move cursor and don't draw
 	push 2
 	push 0
 	call MoveCursor
 	jmp draw
 moveDown:
 	cmp ah, 28
-	jae nodraw					;if cursor is at row 28 or above, don't move cursor and don't draw
+	jae nodraw			;if cursor is at row 28 or above, don't move cursor and don't draw
 	push 0
 	push 1
 	call MoveCursor
@@ -645,36 +645,36 @@ moveDown:
 
 moveRightUp:
 	cmp al, 116
-	jae nodraw					;if cursor is at column 116 or above, don't move cursor and don't draw
+	jae nodraw			;if cursor is at column 116 or above, don't move cursor and don't draw
 	cmp ah, 2
-	jbe nodraw					;if cursor is at row 2 or below, don't move cursor and don't draw
+	jbe nodraw			;if cursor is at row 2 or below, don't move cursor and don't draw
 	push 2
 	push -1
 	call MoveCursor
 	jmp draw
 moveLeftUp:
 	cmp al, 2
-	jbe nodraw					;if cursor is at column 2 or below, don't move cursor and don't draw
+	jbe nodraw			;if cursor is at column 2 or below, don't move cursor and don't draw
 	cmp ah, 2
-	jbe nodraw					;if cursor is at row 2 or below, don't move cursor and don't draw
+	jbe nodraw			;if cursor is at row 2 or below, don't move cursor and don't draw
 	push -2
 	push -1
 	call MoveCursor
 	jmp draw
 moveRightDown:
 	cmp al, 116
-	jae nodraw					;if cursor is at column 116 or above, don't move cursor and don't draw
+	jae nodraw			;if cursor is at column 116 or above, don't move cursor and don't draw
 	cmp ah, 28
-	jae nodraw					;if cursor is at row 28 or above, don't move cursor and don't draw
+	jae nodraw			;if cursor is at row 28 or above, don't move cursor and don't draw
 	push 2
 	push 1
 	call MoveCursor
 	jmp draw
 moveLeftDown:
 	cmp al, 2
-	jbe nodraw					;if cursor is at column 2 or below, don't move cursor and don't draw
+	jbe nodraw			;if cursor is at column 2 or below, don't move cursor and don't draw
 	cmp ah, 28
-	jae nodraw					;if cursor is at row 28 or above, don't move cursor and don't draw
+	jae nodraw			;if cursor is at row 28 or above, don't move cursor and don't draw
 	push -2
 	push 1
 	call MoveCursor
@@ -682,20 +682,20 @@ moveLeftDown:
 
 clear:
 	push black
-	call SetColor				;reset background color to black
-	call Clrscr					;clear whole console window
-	xor al, al					;set AL to 0
+	call SetColor			;reset background color to black
+	call Clrscr			;clear whole console window
+	xor al, al			;set AL to 0
 	mov currentColumn, al		;set currentColumn to 0
-	mov currentRow, al			;set currentRow to 0
-	jmp start					;jmp to start and redraw whole UI again
+	mov currentRow, al		;set currentRow to 0
+	jmp start			;jmp to start and redraw whole UI again
 
 draw:
 	cmp freeroamON, 1
 	je noDraw			;if freeroam is on, do not draw
-	call DrawSquare		;else, draw a square
+	call DrawSquare			;else, draw a square
 
 noDraw:
-	jmp LookForKey		;jump back to LookForKey label
+	jmp LookForKey			;jump back to LookForKey label
 
 exitProgram:
     exit
