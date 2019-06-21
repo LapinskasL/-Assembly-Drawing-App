@@ -21,16 +21,26 @@ INCLUDE Irvine32.inc
 
 
 .data
-
+;---------GLOBALLY USED VARIABLES----------
 ;holds the current column and row position o f the cursor
 currentColumn	BYTE 0
 currentRow	BYTE 0
 
+currentColor DWORD 0	;holds currently selected color
+
+;The variable freeroamON is checked to see if it is 1 (ON) or 0 (OFF).
+;The reason for two of them is because freeroam is toggled on and off.
+;That way, I don't need to know if it's currently ON or OFF to change
+;its state. I can change it by just exchanging their values.
+
+freeroamON	BYTE 1
+freeroamOFF BYTE 0
 
 
 
 
-.data
+
+.data ;VARIABLES BELOW ARE ONLY USED LOCALLY
 ;data for setting up color menu
 colorArray DWORD 9,10,11,12,13,6,8,14,15
 colorNumArray DWORD '1','2','3','4','5','6','7','8','9'
@@ -79,7 +89,7 @@ SetUpMenu ENDP
 
 
 
-.data
+.data ;VARIABLES BELOW ARE ONLY USED LOCALLY
 wordON BYTE "ON ", 0	;holds the string "ON " (the space after on is needed so that
 			;it can erase the last 'F' in "OFF" when it changes.)
 wordOFF BYTE "OFF", 0	;holds the string "OFF"
@@ -136,7 +146,7 @@ UpdateFreeroamStatus PROC
 	call WriteString		;write "OFF" in upper right corner
 
 	push currentColor		;go back to the color that was selected initially ...
-	call SetColor			;... and apply it.
+	call SetSquareColor			;... and apply it.
 	jmp done
 
 changeToON:	
@@ -170,7 +180,7 @@ AddColorToPalette PROC
 
 
 	push [ebp + 12]
-	call SetColor		;set the foreground color to the one in [ebp + 8] parameter
+	call SetSquareColor		;set the foreground color to the one in [ebp + 8] parameter
 
 	mov al, ' '
 	call WriteChar		;write a (space) character in the console
@@ -214,6 +224,8 @@ checkIfBlack:
 loop checkIfBlack
 
 	mov currentColor, eax	;move the new color into currentColor variable
+	push currentColor		;set square color ...
+	call SetSquareColor			;... to the new color.
 
 	pop ecx
 	pop ebx
@@ -249,11 +261,8 @@ SetCharColor ENDP
 
 
 
-.data
-currentColor DWORD 0	;holds currently selected color
-.code
 ;------------------------------------------------------------
-SetColor PROC  ;SetSquareColor?
+SetSquareColor PROC 
 ; Sets the color of the square used to draw with.
 ; Receives: [ebp + 8] - a number 0-15 that represents a color
 ; Returns: nothing
@@ -276,8 +285,7 @@ SetColor PROC  ;SetSquareColor?
 	pop eax
 	pop ebp
 	ret 4				;remove one parameter from the stack and return
-SetColor ENDP
-
+SetSquareColor ENDP
 
 
 
@@ -351,39 +359,39 @@ ColorPicker PROC
 
 setBlue:
 	push 9
-	call SetColor
+	call SetSquareColor
 	jmp done
 setGreen:
 	push 10
-	call SetColor
+	call SetSquareColor
 	jmp done
 setCyan:
 	push 11
-	call SetColor
+	call SetSquareColor
 	jmp done
 setRed:
 	push 12
-	call SetColor
+	call SetSquareColor
 	jmp done
 setMagenta:
 	push 13
-	call SetColor
+	call SetSquareColor
 	jmp done
 setBrown:
 	push brown
-	call SetColor
+	call SetSquareColor
 	jmp done
 setGray:
 	push gray
-	call SetColor
+	call SetSquareColor
 	jmp done
 setYellow:
 	push yellow
-	call SetColor
+	call SetSquareColor
 	jmp done
 setWhite:
 	push 15
-	call SetColor
+	call SetSquareColor
 	jmp done
 
 randomColor:
@@ -397,10 +405,19 @@ randomColor:
 	push 0
 	call MoveCursor			;... else, move the cursor back 2 columns
 skip:
-	push 0
-	call AlterFreeroam		;set freeroam to OFF
+	mov dl, freeroamON
+	cmp dl, 0
+	je dontAlter		;don't switch freeroam to OFF if it is already 0 (OFF)
+	push 0				
+	call AlterFreeroam	;change freeroam status to OFF
 	call UpdateFreeroamStatus	;update freeroam status at top right corner of console
+	jmp finish
+dontAlter:
+	push 0
+	push 0
+	call MoveCursor			;move the cursor back 2 columns
 
+finish:
 	pop edx
 	pop ebp
 	ret 4
@@ -408,17 +425,6 @@ ColorPicker ENDP
 
 
 
-.data
-
-;The variable freeroamON is checked to see if it is 1 (ON) or 0 (OFF).
-;The reason for two of them is because freeroam is toggled on and off.
-;That way, I don't need to know if it's currently ON or OFF to change
-;its state. I can change it by just exchanging their values.
-
-freeroamON	BYTE 1
-freeroamOFF BYTE 0
-
-.code
 ;------------------------------------------------------------
 ToolPicker PROC
 ; Picks the correct tool out of toolbox based on the key (E or F)
@@ -442,7 +448,7 @@ ToolPicker PROC
 
 eraser:	
 	push black			
-	call SetColor		;set square color to 0 (black)
+	call SetSquareColor		;set square color to 0 (black)
 
 	mov dl, freeroamON
 	cmp dl, 0		;if freeroamON is 0 (OFF) ...
@@ -451,8 +457,12 @@ eraser:
 	push 0
 	call MoveCursor
 dontMove:
+	mov dl, freeroamON
+	cmp dl, 0
+	je dontAlter		;don't switch freeroam to OFF if it is already 0 (OFF)
 	push 0				
 	call AlterFreeroam	;change freeroam status to OFF
+dontAlter:
 	jmp done
 
 freeroam:
@@ -476,7 +486,7 @@ doNotMove:
 	call MoveCursor	
 skip2:
 	push currentColor
-	Call SetColor			;set square color to currentColor (so that when freeroam is turned OFF from ON,
+	Call SetSquareColor			;set square color to currentColor (so that when freeroam is turned OFF from ON,
 					;the color the user had selected is back).
 
 	done:
@@ -485,6 +495,7 @@ skip2:
 	pop ebp
 	ret 4
 ToolPicker ENDP
+
 
 
 ;------------------------------------------------------------
@@ -557,7 +568,7 @@ start:
 	Call UpdateFreeroamStatus	;update freeroam's current status
 
 	push 15
-	call SetColor			;set initial color to 15 (white)
+	call SetSquareColor			;set initial color to 15 (white)
 
 	call Randomize			;random seed (for random color generation)
 
@@ -682,7 +693,7 @@ moveLeftDown:
 
 clear:
 	push black
-	call SetColor			;reset background color to black
+	call SetSquareColor			;reset background color to black
 	call Clrscr			;clear whole console window
 	xor al, al			;set AL to 0
 	mov currentColumn, al		;set currentColumn to 0
