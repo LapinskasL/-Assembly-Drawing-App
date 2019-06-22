@@ -33,7 +33,7 @@ currentColor DWORD 0	;holds currently selected color
 ;That way, I don't need to know if it's currently ON or OFF to change
 ;its state. I can change it by just exchanging their values.
 
-freeroamON	BYTE 1
+freeroamON  BYTE 1
 freeroamOFF BYTE 0
 
 
@@ -146,7 +146,7 @@ UpdateFreeroamStatus PROC
 	call WriteString		;write "OFF" in upper right corner
 
 	push currentColor		;go back to the color that was selected initially ...
-	call SetSquareColor			;... and apply it.
+	call SetSquareColor		;... and apply it.
 	jmp done
 
 changeToON:	
@@ -180,7 +180,7 @@ AddColorToPalette PROC
 
 
 	push [ebp + 12]
-	call SetSquareColor		;set the foreground color to the one in [ebp + 8] parameter
+	call SetSquareColor	;set the foreground color to the one in [ebp + 8] parameter
 
 	mov al, ' '
 	call WriteChar		;write a (space) character in the console
@@ -224,8 +224,8 @@ checkIfBlack:
 loop checkIfBlack
 
 	mov currentColor, eax	;move the new color into currentColor variable
-	push currentColor		;set square color ...
-	call SetSquareColor			;... to the new color.
+	push currentColor	;set square color ...
+	call SetSquareColor	;... to the new color.
 
 	pop ecx
 	pop ebx
@@ -407,9 +407,9 @@ randomColor:
 skip:
 	mov dl, freeroamON
 	cmp dl, 0
-	je dontAlter		;don't switch freeroam to OFF if it is already 0 (OFF)
+	je dontAlter			;don't switch freeroam to OFF if it is already 0 (OFF)
 	push 0				
-	call AlterFreeroam	;change freeroam status to OFF
+	call AlterFreeroam		;change freeroam status to OFF
 	call UpdateFreeroamStatus	;update freeroam status at top right corner of console
 	jmp finish
 dontAlter:
@@ -448,7 +448,7 @@ ToolPicker PROC
 
 eraser:	
 	push black			
-	call SetSquareColor		;set square color to 0 (black)
+	call SetSquareColor	;set square color to 0 (black)
 
 	mov dl, freeroamON
 	cmp dl, 0		;if freeroamON is 0 (OFF) ...
@@ -486,7 +486,7 @@ doNotMove:
 	call MoveCursor	
 skip2:
 	push currentColor
-	Call SetSquareColor			;set square color to currentColor (so that when freeroam is turned OFF from ON,
+	Call SetSquareColor		;set square color to currentColor (so that when freeroam is turned OFF from ON,
 					;the color the user had selected is back).
 
 	done:
@@ -568,7 +568,7 @@ start:
 	Call UpdateFreeroamStatus	;update freeroam's current status
 
 	push 15
-	call SetSquareColor			;set initial color to 15 (white)
+	call SetSquareColor		;set initial color to 15 (white)
 
 	call Randomize			;random seed (for random color generation)
 
@@ -693,7 +693,7 @@ moveLeftDown:
 
 clear:
 	push black
-	call SetSquareColor			;reset background color to black
+	call SetSquareColor		;reset background color to black
 	call Clrscr			;clear whole console window
 	xor al, al			;set AL to 0
 	mov currentColumn, al		;set currentColumn to 0
