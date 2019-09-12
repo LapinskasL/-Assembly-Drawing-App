@@ -13,7 +13,8 @@ Controls:
 
 | Key | Description |
 | --- | --- |
-| E | Move the cursor |
+| Arrow keys | Move the cursor |
+| E | Eraser (black color) |
 | F | Toggle freeroam |
 | 1-9 | Select from color palette |
 | 0 | Wacky color |
@@ -23,5 +24,3 @@ Controls:
 | ; | Move cursor southwest |
 | ' | Move cursor southeast |
 | ESC | Exit program |
-
-
